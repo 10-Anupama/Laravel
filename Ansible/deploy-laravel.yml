@@ -1,0 +1,7 @@
+- name: Deploy Laravel app to EKS
+  hosts: localhost
+  tasks:
+    - name: Apply K8s manifests
+      shell: |
+        kubectl apply -f k8s/deployment.yaml
+        kubectl apply -f k8s/service.yaml
