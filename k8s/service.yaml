@@ -3,10 +3,11 @@ kind: Service
 metadata:
   name: laravel-service
 spec:
-  type: LoadBalancer
+  type: LoadBalancer  
   selector:
-    app: laravel
+    app: laravel-app
   ports:
     - protocol: TCP
-      port: 80
-      targetPort: 80
+      port: 80          # External port
+      targetPort: 9000  # Laravel app port inside the container
+
