@@ -1,34 +1,37 @@
-# Set the base image
-FROM php:8.2-fpm
+# === Builder Stage ===
+FROM composer:2.6 as composer
 
-# Set working directory
-WORKDIR /var/www
+WORKDIR /app
+COPY . /app
+
+RUN composer install --no-dev --optimize-autoloader \
+ && php artisan config:cache \
+ && php artisan route:cache \
+ && php artisan view:cache
+
+# === Final Stage ===
+FROM php:8.2-fpm
 
 # Install dependencies
 RUN apt-get update && apt-get install -y \
-    build-essential \
     libpng-dev \
-    libjpeg62-turbo-dev \
-    libfreetype6-dev \
-    locales \
-    zip \
-    jpegoptim optipng pngquant gifsicle \
-    vim unzip git curl \
     libonig-dev \
     libxml2-dev \
-    libzip-dev \
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
+    zip \
+    unzip \
+    curl \
+    git \
+    npm \
+    && docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd
 
-# Install Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+WORKDIR /var/www
 
-# Copy project files
-COPY . .
+COPY --from=composer /app /var/www
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www \
-    && chmod -R 755 /var/www
+ && chmod -R 755 /var/www
 
-# Expose port 9000 and start php-fpm server
 EXPOSE 9000
 CMD ["php-fpm"]
+
