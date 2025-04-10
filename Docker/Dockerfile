@@ -1,4 +1,4 @@
-# === Builder Stage ===
+
 FROM composer:2.6 as composer
 
 WORKDIR /app
